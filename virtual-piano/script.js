@@ -6,11 +6,11 @@ const piano = document.querySelector('.piano')
 const buttonsContainer = document.querySelector('.btn-container')
 const buttons = document.querySelectorAll('.btn')
 
-window.addEventListener('keydown', (event) => playAudio(event));
+window.addEventListener('keydown', (event) => playAudioAndKey(event));
 window.addEventListener('keyup', (event) => keyUp(event));
 piano.addEventListener('mousedown', (event) => {
     if(event.target.classList.contains('piano-key')) {
-      playAudio(event.target);
+      playAudioAndKey(event.target);
     }   
 });
 piano.addEventListener('mouseup' && 'mouseout', (event) => {
@@ -19,7 +19,7 @@ piano.addEventListener('mouseup' && 'mouseout', (event) => {
     } 
 });
 
-function playAudio(x){  
+function playAudioAndKey(x){  
     if(typeof x.code == 'string'){ 
         x = keys.find(item => item.getAttribute('data-letter') == x.code[3])
     }
@@ -30,12 +30,8 @@ function playAudio(x){
                 click.play()
             }
         }
-        playKey(x)
+        x.classList.add('piano-key-active');
     }
-}
-
-function playKey(x){  
-    x.classList.add('piano-key-active'); 
 }
 
 function keyUp(x){
