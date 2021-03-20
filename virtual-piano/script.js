@@ -1,37 +1,55 @@
 const html = document.documentElement
 const keys = Array.from(document.querySelectorAll('.piano-key'));
 const keysAudio = document.querySelectorAll('audio');
-const piano = document.querySelector('.piano')
+const piano = document.querySelector('.piano');
+const pianoKeys = document.querySelectorAll('.piano-key');
 
 const buttonsContainer = document.querySelector('.btn-container')
 const buttons = document.querySelectorAll('.btn')
 
-window.addEventListener('keydown', (event) => playAudioAndKey(event));
-window.addEventListener('keyup', (event) => keyUp(event));
+buttonsContainer.addEventListener('click', (event) => notesLettersTransform(event.target))
+window.addEventListener('keydown', (event) => {
+    if(!event.repeat) playKey(event)  
+});
+window.addEventListener('keyup', (event) => {
+    keyUp(event)
+    stopAudio(event.target)
+});
 piano.addEventListener('mousedown', (event) => {
     if(event.target.classList.contains('piano-key')) {
-      playAudioAndKey(event.target);
+      playKey(event.target);
+      playAudio(event.target)
     }   
 });
-piano.addEventListener('mouseup' && 'mouseout', (event) => {
+document.querySelector('main').addEventListener('mouseup', (event) => {    
+    stopAudio(event.target)
     if(event.target.classList.contains('piano-key')) {
         keyUp(event.target);
     } 
 });
 
-function playAudioAndKey(x){  
-    if(typeof x.code == 'string'){ 
+function playKey(x){ 
+    if(typeof x.code == 'string' && x.code === `Key${x.code[3]}`){ 
         x = keys.find(item => item.getAttribute('data-letter') == x.code[3])
     }
     if(x != undefined){
-        for(let click of keysAudio){
-            if(click.getAttribute('data-note') == x.getAttribute('data-note')){
-                click.currentTime = 0;
-                click.play()
-            }
-        }
-        x.classList.add('piano-key-active');
+        playAudio(x)
     }
+}
+
+function playAudio(x){
+    x = x.target == undefined ? x : x.target
+    for(let click of keysAudio){
+        x.classList.add('piano-key-active');
+        if(click.getAttribute('data-note') == x.getAttribute('data-note')){
+            click.currentTime = 0;
+            click.play()
+        }
+    }
+    pianoKeys.forEach((elem) =>{
+        elem.addEventListener('mouseover', playAudio)
+        elem.addEventListener('mouseout', keyUp)
+    })
 }
 
 function keyUp(x){
@@ -39,11 +57,17 @@ function keyUp(x){
         x = keys.find(item => item.getAttribute('data-letter') == x.code[3])
     }
     if(x != undefined){
+        x = x.target == undefined ? x : x.target
         x.classList.remove('piano-key-active');
     }  
 }
 
-buttonsContainer.addEventListener('click', (event) => notesLettersTransform(event.target))
+function stopAudio(x){
+    pianoKeys.forEach((elem) =>{
+        elem.removeEventListener('mouseover', playAudio)
+        elem.removeEventListener('mouseout', keyUp)
+    })    
+}
 
 function notesLettersTransform(x){
     buttons.forEach(item =>{
